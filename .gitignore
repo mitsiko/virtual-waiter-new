@@ -1,0 +1,23 @@
+
+# Python virtual environments
+.venv/
+backend/.venv/
+
+# Python cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Archive folder
+_archive/
+
+# Exclude specific document
+PROMPT_SANDBOX.docx
+
+# Exclude all WAV audio files
+*.wav

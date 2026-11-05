@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Perpetual Bistro — Shelly Virtual Waiter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="top-panels">
+        <section class="brand-panel">
+            <h1>Perpetual Bistro</h1>
+            <p class="tagline">Shelly, your virtual waiter</p>
+            <p class="hint">Start by telling us your table number — e.g. "Table 5".<br>
+               Click the chat icon to begin.</p>
+            <div id="status-pill" class="status-pill">Idle</div>
+        </section>
+        <section class="menu-panel">
+            <h2>Menu</h2>
+            <div id="menu-content" class="menu-content">
+                <p class="muted">Loading menu…</p>
+            </div>
+        </section>
+    </header>
+
+    <main class="main-area">
+        <section id="welcome-panel" class="card">
+            <h2>Welcome to Perpetual Bistro!</h2>
+            <p>Click the microphone or chat icon to place your order.</p>
+            <p class="muted">Tell us your table number to get started.</p>
+        </section>
+
+        <section id="order-panel" class="card" hidden>
+            <div class="order-header">
+                <h2>Order Cart <span id="table-label" class="table-label"></span></h2>
+                <span id="state-badge" class="state-badge"></span>
+            </div>
+            <div id="order-lines" class="order-lines">
+                <p class="muted">Your cart is empty. Add items via chat.</p>
+            </div>
+            <div class="order-totals">
+                <div><span>Subtotal</span><span id="subtotal">₱0.00</span></div>
+                <div><span>Service Fee (10%)</span><span id="service-fee">₱0.00</span></div>
+                <div class="grand"><span>Total</span><span id="grand-total">₱0.00</span></div>
+            </div>
+            <button id="confirm-button" class="btn-primary btn-confirm" disabled>Confirm my Order</button>
+        </section>
+    </main>
+
+    <button id="mic-button" class="fab fab-mic" title="Click to speak">🎤</button>
+    <button id="chat-toggle" class="fab fab-chat" title="Open chat">💬</button>
+
+    <aside id="chat-drawer" class="chat-drawer" hidden>
+        <header class="chat-header">
+            <span>Chat with Shelly</span>
+            <button id="chat-close" class="chat-close" title="Close">×</button>
+        </header>
+        <div id="chat-log" class="chat-log"></div>
+        <form id="chat-form" class="chat-input-row" autocomplete="off">
+            <input id="chat-input" type="text" placeholder="Type your message…" />
+            <button type="submit" class="btn-primary">Send</button>
+        </form>
+    </aside>
+
+    <div id="confirm-modal" class="modal-backdrop" hidden>
+        <div class="modal">
+            <h3>Are you sure?</h3>
+            <p>Do you want to confirm your order now?</p>
+            <div class="modal-actions">
+                <button id="confirm-yes" class="btn-primary">Yes, confirm</button>
+                <button id="confirm-no" class="btn-secondary">No, go back</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
