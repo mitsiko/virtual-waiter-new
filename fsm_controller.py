@@ -360,8 +360,16 @@ class ShellyAgent:
     def _handle_off_topic(self, user_text: str):
         if not self._is_off_topic(user_text):
             return None
-        final_reply = ("I'm here to help with your Perpetual Bistro order. "
-                       "What would you like to eat or drink?")
+        if self.state in ("STATE_CONFIRMED", "STATE_COMPLETED"):
+            final_reply = (
+                "I'm here to help with your Perpetual Bistro order. "
+                "Your order is already confirmed — if you'd like to start "
+                "a new order, say 'start a new order' or click the "
+                "new-session button."
+            )
+        else:
+            final_reply = ("I'm here to help with your Perpetual Bistro order. "
+                           "What would you like to eat or drink?")
         self.messages.append({"role": "user", "content": user_text})
         self.messages.append({"role": "assistant", "content": final_reply})
         return {
@@ -371,7 +379,7 @@ class ShellyAgent:
             "table_no": self.table_no,
             "tool_calls": [],
         }
-
+    
     def _is_question(self, text: str) -> bool:
         t = text.strip().lower()
         if "?" in t:
@@ -1353,17 +1361,11 @@ class ShellyAgent:
             receipt = order_snapshot.get("order")
 
         total = receipt.get("grand_total", 0) if receipt else 0
-        lines_txt = ""
-        if receipt and receipt.get("lines"):
-            for ln in receipt["lines"]:
-                note = f" ({ln['instructions']})" if ln["instructions"] else ""
-                lines_txt += (
-                    f"\n  - {ln['quantity']} x {ln['name']}{note}: ₱{ln['line_total']:.2f}"
-                )
+        item_count = receipt.get("item_count", 0) if receipt else 0
         final_reply = (
-            f"Your order has been confirmed! Thank you for dining at Perpetual Bistro."
-            f"{lines_txt}\n"
-            f"Total: ₱{total:.2f}. Enjoy your meal!"
+            f"Your order has been confirmed! Total: ₱{total:.2f} "
+            f"for {item_count} item(s). Thank you for dining at "
+            f"Perpetual Bistro — enjoy your meal!"
         )
 
         self._append_tool_exchange(

@@ -12,6 +12,7 @@ const state = {
 
 let currentAudio = null;
 let currentAudioUrl = null;
+let greetingSpoken = false;
 
 // ---------- DOM helpers ----------
 const $ = (id) => document.getElementById(id);
@@ -196,10 +197,20 @@ function appendChat(who, text) {
     log.scrollTop = log.scrollHeight;
 }
 
+async function ensureGreetingSpoken() {
+    if (greetingSpoken) return;
+    greetingSpoken = true;
+    if (state.current.state !== 'STATE_GREETING') return;
+    const greeting = "Hi! I'm Shelly. Tell me your table number (for example, \"Table 5\") to get started.";
+    await speak(greeting);
+}
+
 function openChat() {
     chatDrawer().hidden = false;
     chatInput().focus();
+    ensureGreetingSpoken();
 }
+
 function closeChat() { chatDrawer().hidden = true; }
 function toggleChat() {
     if (chatDrawer().hidden) openChat(); else closeChat();
@@ -292,8 +303,10 @@ async function cartUpdate(itemName, action, instructions) {
     if (res.status === 'success') {
         applyState({ order: res.order, state: res.state });
     } else {
-        appendChat('shelly', res.message || 'Could not update cart.');
+        const errMsg = res.message || 'Could not update cart.';
+        appendChat('shelly', errMsg);
         openChat();
+        await speak(errMsg);
     }
 }
 
@@ -541,7 +554,7 @@ async function init() {
         cartUpdate(line.dataset.itemName, btn.dataset.action,
                    line.dataset.instructions);
     });
-    
+
     // Voice support check
     const supported = await voice.init();
     const mic = $('mic-button');
