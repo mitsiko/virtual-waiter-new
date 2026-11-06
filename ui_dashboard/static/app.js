@@ -127,6 +127,7 @@ function renderOrder(order) {
             const div = document.createElement('div');
             div.className = 'order-line';
             div.dataset.itemName = ln.name;
+            div.dataset.instructions = ln.instructions || '';
 
             const nameEl = document.createElement('div');
             nameEl.className = 'line-name';
@@ -282,8 +283,12 @@ async function sendMessage(text) {
 }
 
 // ---------- Cart ----------
-async function cartUpdate(itemName, action) {
-    const res = await api('/api/cart/update', 'POST', { item_name: itemName, action });
+async function cartUpdate(itemName, action, instructions) {
+    const res = await api('/api/cart/update', 'POST', {
+        item_name: itemName,
+        action,
+        instructions: instructions == null ? '' : instructions,
+    });
     if (res.status === 'success') {
         applyState({ order: res.order, state: res.state });
     } else {
@@ -533,9 +538,10 @@ async function init() {
         if (!btn) return;
         const line = btn.closest('.order-line');
         if (!line) return;
-        cartUpdate(line.dataset.itemName, btn.dataset.action);
+        cartUpdate(line.dataset.itemName, btn.dataset.action,
+                   line.dataset.instructions);
     });
-
+    
     // Voice support check
     const supported = await voice.init();
     const mic = $('mic-button');

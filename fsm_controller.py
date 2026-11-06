@@ -811,7 +811,8 @@ class ShellyAgent:
             f"Subtotal: ₱{order['subtotal']:.2f}\n"
             f"Service Fee (10%): ₱{order['service_fee']:.2f}\n"
             f"Total: ₱{order['grand_total']:.2f}\n\n"
-            f"Shall I confirm this order, or would you like to change anything?"
+            f"Reply 'confirm' (or click Confirm my Order) to finalize, "
+            f"or tell me what you'd like to change."
         )
 
     def _handle_view_order(self, user_text: str):

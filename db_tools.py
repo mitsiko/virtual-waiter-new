@@ -507,21 +507,34 @@ def remove_item_from_order(session_id: str, item_name: str,
             for l in lines:
                 conn.execute("DELETE FROM order_line_items WHERE line_id = ?",
                              (l["line_id"],))
-            summary = f"Removed '{item['name']}' from your order."
+            if instructions:
+                summary = (f"Removed '{item['name']}' "
+                           f"({instructions}) from your order.")
+            else:
+                summary = f"Removed '{item['name']}' from your order."
         else:
             line = lines[0]
             if line["quantity"] <= qty:
                 conn.execute("DELETE FROM order_line_items WHERE line_id = ?",
                              (line["line_id"],))
-                summary = (f"Removed all {line['quantity']} x "
-                           f"'{item['name']}' from your order.")
+                note_suffix = (f" ({line['special_instructions']})"
+                               if line["special_instructions"] else "")
+                if line["quantity"] == 1:
+                    summary = (f"Removed '{item['name']}'{note_suffix} "
+                               f"from your order.")
+                else:
+                    summary = (f"Removed all {line['quantity']} x "
+                               f"'{item['name']}'{note_suffix} "
+                               f"from your order.")
             else:
                 new_qty = line["quantity"] - qty
                 conn.execute(
                     "UPDATE order_line_items SET quantity = ? WHERE line_id = ?",
                     (new_qty, line["line_id"]),
                 )
-                summary = (f"Removed {qty} x '{item['name']}'. "
+                note_suffix = (f" ({line['special_instructions']})"
+                               if line["special_instructions"] else "")
+                summary = (f"Removed {qty} x '{item['name']}'{note_suffix}. "
                            f"{new_qty} remaining.")
 
     order = view_current_order(session_id)

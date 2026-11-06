@@ -201,6 +201,13 @@ def api_cart_update():
     data = request.get_json(silent=True) or {}
     item_name = (data.get("item_name") or "").strip()
     action = (data.get("action") or "").strip().lower()
+    raw_instructions = data.get("instructions")
+    # Frontend always sends a string (possibly ""); accept null too.
+    if raw_instructions is None:
+        instructions = None
+    else:
+        instructions = str(raw_instructions).strip()
+
     if not item_name or action not in ("inc", "dec", "remove"):
         return jsonify({"status": "error",
                         "message": "item_name and action (inc|dec|remove) required."}), 400
@@ -208,11 +215,13 @@ def api_cart_update():
         return jsonify({"status": "error",
                         "message": "No active session."}), 400
 
+    # Find the exact line (item name + instructions) so + / − on one of
+    # two "Chicken Adobo" lines with different notes targets the right one.
     order = _order_snapshot()
     line = None
     if order:
         for ln in order["lines"]:
-            if ln["name"] == item_name:
+            if ln["name"] == item_name and (ln["instructions"] or "") == (instructions or ""):
                 line = ln
                 break
     if line is None:
@@ -220,16 +229,28 @@ def api_cart_update():
                         "message": f"'{item_name}' is not in your order."}), 400
 
     if action == "remove":
-        result = db.remove_item_from_order(AGENT.session_id, item_name)
+        result = db.remove_item_from_order(
+            AGENT.session_id, item_name,
+            instructions=instructions, qty=line["quantity"],
+        )
     elif action == "inc":
         new_qty = line["quantity"] + 1
-        result = db.change_item_quantity(AGENT.session_id, item_name, new_qty)
+        result = db.change_item_quantity(
+            AGENT.session_id, item_name, new_qty,
+            instructions=instructions,
+        )
     else:  # dec
         new_qty = line["quantity"] - 1
         if new_qty <= 0:
-            result = db.remove_item_from_order(AGENT.session_id, item_name)
+            result = db.remove_item_from_order(
+                AGENT.session_id, item_name,
+                instructions=instructions, qty=line["quantity"],
+            )
         else:
-            result = db.change_item_quantity(AGENT.session_id, item_name, new_qty)
+            result = db.change_item_quantity(
+                AGENT.session_id, item_name, new_qty,
+                instructions=instructions,
+            )
 
     if result.get("status") == "success" and AGENT.state == "STATE_REVIEW":
         AGENT._set_state("STATE_TAKING_ORDER")
