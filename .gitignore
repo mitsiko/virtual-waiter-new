@@ -20,3 +20,6 @@ _archive/
 
 # Exclude all WAV audio files
 *.wav
+
+# Temporary files
+*.tmp

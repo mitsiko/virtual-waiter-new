@@ -424,6 +424,8 @@ class ShellyAgent:
             if m:
                 note = m.group(1).strip()
                 note = re.sub(r'\s+and\s*$', '', note).strip()
+                note = re.sub(r'\s+(?:please|thanks|thank\s+you|now|too|asap)\s*$',
+                              '', note, flags=re.IGNORECASE).strip()
                 if note:
                     return note
         return ""
@@ -944,11 +946,76 @@ class ShellyAgent:
             "tool_calls": [],
         }
     # -------- Remove item (deterministic) --------
+    def _handle_clear_cart(self, user_text: str):
+        if self.state not in ("STATE_TAKING_ORDER", "STATE_REVIEW"):
+            return None
+        if not self.session_id:
+            return None
+
+        t = user_text.lower()
+        triggers = [
+            "remove everything", "remove all items", "remove all of it",
+            "remove all of them", "remove all my items",
+            "clear my order", "clear the order", "clear the cart",
+            "clear my cart", "empty my order", "empty my cart",
+            "empty the cart", "delete everything", "delete all items",
+            "clear everything", "empty everything",
+        ]
+        if not any(k in t for k in triggers):
+            return None
+
+        res = db.clear_session_cart(self.session_id)
+        if res.get("status") == "success":
+            reply = "Cleared your order. What would you like to add?"
+        else:
+            reply = res.get("message", "Could not clear the order.")
+
+        self._append_tool_exchange(
+            user_text,
+            [{"name": "clear_session_cart",
+              "arguments": {"session_id": self.session_id},
+              "result": res}],
+            reply,
+        )
+
+        if self.state == "STATE_REVIEW":
+            self._set_state("STATE_TAKING_ORDER")
+
+        return {
+            "reply": reply,
+            "state": self.state,
+            "session_id": self.session_id,
+            "table_no": self.table_no,
+            "tool_calls": [{"name": "clear_session_cart",
+                            "arguments": {"session_id": self.session_id},
+                            "result": res}],
+        }
+
     def _handle_remove_item(self, user_text: str):
         if self.state not in ("STATE_TAKING_ORDER", "STATE_REVIEW"):
             return None
         if not self.session_id:
             return None
+
+        # Guard: "remove the note on X" must NOT remove the item.
+        if re.search(
+            r"\b(?:remove|clear|delete)\s+(?:the\s+|my\s+|any\s+)?note\b",
+            user_text, flags=re.IGNORECASE,
+        ):
+            reply = ("Clearing a note is not supported. You can replace it "
+                     "with a different note (for example, 'change the note "
+                     "on the Chicken Adobo to extra sauce'), or remove the "
+                     "item and re-add it without a note.")
+            self.messages.append({"role": "user", "content": user_text})
+            self.messages.append({"role": "assistant", "content": reply})
+            return {
+                "reply": reply,
+                "state": self.state,
+                "session_id": self.session_id,
+                "table_no": self.table_no,
+                "tool_calls": [],
+            }
+
         if not self._detect_remove_intent(user_text):
             return None
 
@@ -958,11 +1025,15 @@ class ShellyAgent:
         item_name = hits[0]["name"]
         qty = hits[0].get("qty")
         qty_explicit = bool(hits[0].get("qty_explicit"))
+        note = (hits[0].get("note") or "").strip()
 
-        # "Remove the Chicken Adobo"  -> remove the whole line
-        # "Remove 1 Chicken Adobo"    -> remove exactly one unit
+        # "Remove the Chicken Adobo"            -> remove the whole line
+        # "Remove 1 Chicken Adobo"              -> remove exactly one unit
+        # "Remove 1 Chicken Adobo, extra onions" -> target that specific line
         remove_kwargs: dict = {"session_id": self.session_id,
                                "item_name": item_name}
+        if note:
+            remove_kwargs["instructions"] = note
         if qty_explicit and qty is not None:
             remove_kwargs["qty"] = qty
 
@@ -993,7 +1064,6 @@ class ShellyAgent:
                             "arguments": dict(remove_kwargs),
                             "result": res}],
         }
-
     # -------- Change quantity (deterministic) --------
     def _detect_change_qty(self, text: str):
         t = text.strip()
@@ -1052,17 +1122,20 @@ class ShellyAgent:
     def _detect_note_change(self, text: str):
         t = text.strip()
 
+        def _clean_item(item: str) -> str:
+            item = item.strip().strip(" \"'")
+            item = re.sub(r"^(?:the|my|our)\s+", "", item, flags=re.IGNORECASE)
+            item = re.sub(r"\s+order\s*$", "", item, flags=re.IGNORECASE)
+            return item.strip()
+
         m = re.search(
             r"\b(?:change|update|set|replace)\s+the\s+note\s+(?:on|for)\s+"
             r"(.+?)\s+(?:to|with)\s+(.+)$",
             t, flags=re.IGNORECASE,
         )
         if m:
-            item = m.group(1).strip()
-            note = m.group(2).strip()
-            item = re.sub(r"^the\s+", "", item, flags=re.IGNORECASE)
-            item = item.strip(" \"'")
-            note = note.strip(" \"'")
+            item = _clean_item(m.group(1))
+            note = m.group(2).strip().strip(" \"'")
             if item and note:
                 return (item, note)
 
@@ -1071,7 +1144,7 @@ class ShellyAgent:
             t, flags=re.IGNORECASE,
         )
         if m:
-            item = m.group(1).strip().strip(" \"'")
+            item = _clean_item(m.group(1))
             note = m.group(2).strip().strip(" \"'")
             if item and note:
                 return (item, note)
@@ -1345,23 +1418,19 @@ class ShellyAgent:
         if self.state == "STATE_CONFIRMED":
             self._set_state("STATE_COMPLETED")
 
-        # ---------- Post-confirmation lockout ----------
-        # Once an order is confirmed, every cart-modifying intent is refused
-        # BEFORE the LLM is consulted. Must fire in BOTH STATE_CONFIRMED
-        # (first turn after confirm) and STATE_COMPLETED (all later turns),
-        # otherwise "remove"/"cancel"/"change note" would fall through to
-        # Qwen and be hallucinated. This was the exact bug in the run 6
-        # edge-case sweep.
-        if (self.session_id
-                and state_at_start in ("STATE_CONFIRMED", "STATE_COMPLETED")):
+        # ---------- Universal "start a new order" trigger ----------
+        # Fires in ANY state that has an active session, so "reset",
+        # "start over", "new session", etc. are not misclassified as
+        # off-topic by the model or as an edit attempt by the
+        # post-confirm guard.
+        if self.session_id:
             t_lower = user_text.lower()
-
-            # "Start a new order" — reset so a fresh session can begin.
             new_order_triggers = [
                 "new order", "another order", "start over",
                 "start a new order", "start a fresh", "fresh order",
                 "start again", "reset", "new session",
                 "another session", "start fresh", "begin again",
+                "restart", "start new session", "new customer",
             ]
             if any(k in t_lower for k in new_order_triggers):
                 self._pending_ambiguous_add = False
@@ -1382,7 +1451,10 @@ class ShellyAgent:
                     "tool_calls": [],
                 }
 
-            # Any other edit intent on the confirmed order is refused.
+        # ---------- Post-confirmation lockout ----------
+        if (self.session_id
+                and state_at_start in ("STATE_CONFIRMED", "STATE_COMPLETED")):
+            t_lower = user_text.lower()
             edit_triggers = [
                 "add", "remove", "delete", "cancel", "change", "update",
                 "modify", "another", "more", "also", "order again",
@@ -1483,6 +1555,11 @@ class ShellyAgent:
         cancel = self._handle_cancel_order(user_text)
         if cancel is not None:
             return cancel
+
+        # ---------------- 4c. Clear cart (deterministic) ----------------
+        clear = self._handle_clear_cart(user_text)
+        if clear is not None:
+            return clear
 
         # ---------------- 5. Remove item (deterministic) ----------------
         rm = self._handle_remove_item(user_text)
