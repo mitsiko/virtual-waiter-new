@@ -101,6 +101,9 @@ function renderLayout() {
     $('welcome-panel').hidden = !!showOrder;
     $('order-panel').hidden = !showOrder;
     if (showOrder) renderOrder(state.current.order);
+
+    const showNewSession = (s === 'STATE_CONFIRMED' || s === 'STATE_COMPLETED');
+    $('new-session-button').hidden = !showNewSession;
 }
 
 function renderOrder(order) {
@@ -519,6 +522,11 @@ async function init() {
     $('confirm-button').addEventListener('click', openConfirmModal);
     $('confirm-yes').addEventListener('click', doConfirm);
     $('confirm-no').addEventListener('click', closeConfirmModal);
+    $('new-session-button').addEventListener('click', async () => {
+        setStatus('Thinking…');
+        await api('/api/reset', 'POST');
+        window.location.reload();
+    });
 
     $('order-lines').addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-action]');

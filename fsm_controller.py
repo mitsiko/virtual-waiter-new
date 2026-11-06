@@ -94,6 +94,9 @@ OFF_TOPIC_TRIGGERS = [
 NUMBER_WORDS = {
     "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
     "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
+    "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14,
+    "fifteen": 15, "sixteen": 16, "seventeen": 17, "eighteen": 18,
+    "nineteen": 19, "twenty": 20,
 }
 
 
@@ -376,6 +379,33 @@ class ShellyAgent:
         first = t.split()[0] if t.split() else ""
         return first in ("do", "does", "is", "are", "can", "could", "what",
                          "which", "who", "where", "why", "how")
+
+    def _extract_table_number(self, text: str):
+        """Extract a table number from a greeting utterance.
+
+        Accepts digit form ("Table 5", "5", "number 12"), word form
+        ("Table Five", "number twelve", "five please"), and mixed
+        ("I'm at table four"). Returns int or None."""
+        t = text.strip()
+        # Digits first
+        m = re.search(r"\b(\d{1,2})\b", t)
+        if m:
+            return int(m.group(1))
+        tl = t.lower()
+        # "table five" / "number five" / "no. five" / "no five"
+        m = re.search(r"\b(?:table|number|no\.?)\s+([a-z]+)\b", tl)
+        if m and m.group(1) in NUMBER_WORDS:
+            return NUMBER_WORDS[m.group(1)]
+        # Bare word at start: "five", "five please"
+        m = re.match(r"^([a-z]+)\b", tl)
+        if m and m.group(1) in NUMBER_WORDS:
+            return NUMBER_WORDS[m.group(1)]
+        # Any number-word in a very short utterance (<=4 words)
+        if len(tl.split()) <= 4:
+            for w, n in NUMBER_WORDS.items():
+                if re.search(rf"\b{w}\b", tl):
+                    return n
+        return None
 
     # -------- Menu item + quantity + note extraction --------
     def _extract_note(self, window: str) -> str:
@@ -1315,8 +1345,44 @@ class ShellyAgent:
         if self.state == "STATE_CONFIRMED":
             self._set_state("STATE_COMPLETED")
 
-        if state_at_start == "STATE_CONFIRMED":
+        # ---------- Post-confirmation lockout ----------
+        # Once an order is confirmed, every cart-modifying intent is refused
+        # BEFORE the LLM is consulted. Must fire in BOTH STATE_CONFIRMED
+        # (first turn after confirm) and STATE_COMPLETED (all later turns),
+        # otherwise "remove"/"cancel"/"change note" would fall through to
+        # Qwen and be hallucinated. This was the exact bug in the run 6
+        # edge-case sweep.
+        if (self.session_id
+                and state_at_start in ("STATE_CONFIRMED", "STATE_COMPLETED")):
             t_lower = user_text.lower()
+
+            # "Start a new order" — reset so a fresh session can begin.
+            new_order_triggers = [
+                "new order", "another order", "start over",
+                "start a new order", "start a fresh", "fresh order",
+                "start again", "reset", "new session",
+                "another session", "start fresh", "begin again",
+            ]
+            if any(k in t_lower for k in new_order_triggers):
+                self._pending_ambiguous_add = False
+                self._pending_cancel = False
+                self.session_id = None
+                self.table_no = None
+                self.messages = []
+                self._set_state("STATE_GREETING")
+                reply = ("Sure — starting a fresh session. "
+                         "What's your table number?")
+                self.messages.append({"role": "user", "content": user_text})
+                self.messages.append({"role": "assistant", "content": reply})
+                return {
+                    "reply": reply,
+                    "state": self.state,
+                    "session_id": self.session_id,
+                    "table_no": self.table_no,
+                    "tool_calls": [],
+                }
+
+            # Any other edit intent on the confirmed order is refused.
             edit_triggers = [
                 "add", "remove", "delete", "cancel", "change", "update",
                 "modify", "another", "more", "also", "order again",
@@ -1326,7 +1392,8 @@ class ShellyAgent:
                 reply = (
                     "Your order has already been confirmed and sent to the "
                     "kitchen, so it can no longer be modified. If you'd like "
-                    "to order something else, please start a new session."
+                    "to order something else, say 'start a new order' or "
+                    "click the new-session button."
                 )
                 self.messages.append({"role": "user", "content": user_text})
                 self.messages.append({"role": "assistant", "content": reply})
@@ -1340,36 +1407,34 @@ class ShellyAgent:
 
         # ---------------- GREETING (deterministic) ----------------
         if self.state == "STATE_GREETING" and self.session_id is None:
-            m = re.search(r"\b(\d{1,2})\b", user_text)
-            if m:
-                table_no = int(m.group(1))
-                if 1 <= table_no <= 99:
-                    res = db.create_session(table_no=table_no)
-                    if res.get("status") == "success":
-                        self.session_id = res["session_id"]
-                        self.table_no = res["table_no"]
-                        self._set_state("STATE_TAKING_ORDER")
-                        reply = (
-                            f"Thanks! Table {table_no} is open. "
-                            f"What would you like to order? "
-                            f"We have Appetizers, Main Dishes, Rice, Drinks, and Desserts."
-                        )
-                        self._append_tool_exchange(
-                            user_text,
-                            [{"name": "create_session",
-                              "arguments": {"table_no": table_no},
-                              "result": res}],
-                            reply,
-                        )
-                        return {
-                            "reply": reply,
-                            "state": self.state,
-                            "session_id": self.session_id,
-                            "table_no": self.table_no,
-                            "tool_calls": [{"name": "create_session",
-                                            "arguments": {"table_no": table_no},
-                                            "result": res}],
-                        }
+            table_no = self._extract_table_number(user_text)
+            if table_no is not None and 1 <= table_no <= 99:
+                res = db.create_session(table_no=table_no)
+                if res.get("status") == "success":
+                    self.session_id = res["session_id"]
+                    self.table_no = res["table_no"]
+                    self._set_state("STATE_TAKING_ORDER")
+                    reply = (
+                        f"Thanks! Table {table_no} is open. "
+                        f"What would you like to order? "
+                        f"We have Appetizers, Main Dishes, Rice, Drinks, and Desserts."
+                    )
+                    self._append_tool_exchange(
+                        user_text,
+                        [{"name": "create_session",
+                          "arguments": {"table_no": table_no},
+                          "result": res}],
+                        reply,
+                    )
+                    return {
+                        "reply": reply,
+                        "state": self.state,
+                        "session_id": self.session_id,
+                        "table_no": self.table_no,
+                        "tool_calls": [{"name": "create_session",
+                                        "arguments": {"table_no": table_no},
+                                        "result": res}],
+                    }
             reply = ("Welcome to Perpetual Bistro! I'm Shelly, your virtual waiter. "
                      "What's your table number?")
             self.messages.append({"role": "user", "content": user_text})

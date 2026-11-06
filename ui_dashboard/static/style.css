@@ -364,3 +364,12 @@ h2 { font-size: 1.2rem; }
     0%, 100% { transform: scale(1); }
     50%      { transform: scale(1.08); }
 }
+
+.fab-new {
+    right: 164px;
+    background: var(--primary-soft);
+    color: var(--bg);
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+.fab-new:hover { background: var(--primary); }

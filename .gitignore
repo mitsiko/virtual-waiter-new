@@ -1,4 +1,3 @@
-
 # Python virtual environments
 .venv/
 backend/.venv/
@@ -16,8 +15,8 @@ __pycache__/
 # Archive folder
 _archive/
 
-# Exclude specific document
-PROMPT_SANDBOX.docx
+# Exclude all Word documents
+*.docx
 
 # Exclude all WAV audio files
 *.wav
