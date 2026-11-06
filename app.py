@@ -14,7 +14,7 @@ import os
 import sys
 import tempfile
 
-from flask import Flask, jsonify, request, render_template, send_file
+from flask import Flask, jsonify, request, render_template, send_file, send_from_directory
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
@@ -67,9 +67,10 @@ def _order_snapshot():
 def index():
     return render_template("index.html")
 
-@app.get("/favicon.ico")
-def favicon():
-    return ("", 204)
+@app.get("/images/<path:filename>")
+def images(filename):
+    img_dir = os.path.join(HERE, "ui_dashboard", "images")
+    return send_from_directory(img_dir, filename)
 
 # ------------------------------------------------------------
 # Read-only API

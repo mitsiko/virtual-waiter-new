@@ -48,8 +48,9 @@
     </main>
 
     <button id="new-session-button" class="fab fab-new" title="Start a new order" hidden>⟳</button>
-    <button id="mic-button" class="fab fab-mic" title="Click to speak">🎤</button>
-    <button id="chat-toggle" class="fab fab-chat" title="Open chat">💬</button>
+    <button id="chat-toggle" class="fab fab-chat" title="Open chat">
+        <img src="{{ url_for('images', filename='waiter-icon.png') }}" alt="Chat">
+    </button>
 
     <aside id="chat-drawer" class="chat-drawer" hidden>
         <header class="chat-header">
@@ -58,6 +59,7 @@
         </header>
         <div id="chat-log" class="chat-log"></div>
         <form id="chat-form" class="chat-input-row" autocomplete="off">
+            <button type="button" id="mic-button" title="Click to speak">🎤</button>
             <input id="chat-input" type="text" placeholder="Type your message…" />
             <button type="submit" class="btn-primary">Send</button>
         </form>

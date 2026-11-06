@@ -207,11 +207,14 @@ async function ensureGreetingSpoken() {
 
 function openChat() {
     chatDrawer().hidden = false;
+    document.body.classList.add('chat-open');
     chatInput().focus();
     ensureGreetingSpoken();
 }
-
-function closeChat() { chatDrawer().hidden = true; }
+function closeChat() {
+    chatDrawer().hidden = true;
+    document.body.classList.remove('chat-open');
+}
 function toggleChat() {
     if (chatDrawer().hidden) openChat(); else closeChat();
 }
