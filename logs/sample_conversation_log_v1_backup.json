@@ -1,6 +1,6 @@
 {
   "lab": "Lesson 6 - Conversational State Machines and Workflows",
-  "agent": "Shelly",
+  "agent": "Leighton",
   "model": "qwen2.5:3b (Ollama)",
   "started_at": "2026-10-23T23:21:49",
   "ended_at": "2026-10-23T23:27:10",
@@ -44,7 +44,7 @@
       "user": "(session start)",
       "state_before": "STATE_GREETING",
       "state_after": "STATE_GREETING",
-      "reply": "Welcome to Perpetual Bistro! I'm Shelly, your virtual waiter. What's your table number?",
+      "reply": "Welcome to Perpetual Bistro! I'm Leighton, your virtual waiter. What's your table number?",
       "tool_calls": []
     },
     {
@@ -52,7 +52,7 @@
       "user": "Hi",
       "state_before": "STATE_GREETING",
       "state_after": "STATE_GREETING",
-      "reply": "Welcome to Perpetual Bistro! I'm Shelly, your virtual waiter. What's your table number?",
+      "reply": "Welcome to Perpetual Bistro! I'm Leighton, your virtual waiter. What's your table number?",
       "tool_calls": []
     },
     {
@@ -192,7 +192,7 @@
     },
     {
       "turn": 12,
-      "user": "Who is Shelly?",
+      "user": "Who is Leighton?",
       "state_before": "STATE_TAKING_ORDER",
       "state_after": "STATE_TAKING_ORDER",
       "reply": "I'm here to help with your Perpetual Bistro order. What would you like to eat or drink?",

@@ -1,6 +1,6 @@
-# Shelly Virtual Waiter — Perpetual Bistro
+# Leighton Virtual Waiter — Perpetual Bistro
 
-A local, offline conversational restaurant agent. The user talks to **Shelly**, a
+A local, offline conversational restaurant agent. The user talks to **Leighton**, a
 virtual waiter that browses a menu, takes orders, answers questions about
 ingredients and allergens, modifies the order, and confirms it. All menu,
 price, stock, and order data lives in a local SQLite database.
@@ -13,7 +13,7 @@ APIs**.
 
 ## Project Overview
 
-Shelly is a stateful, multi-turn conversational agent that:
+Leighton is a stateful, multi-turn conversational agent that:
 
 - Maintains session memory across many turns.
 - Uses a Finite State Machine (FSM) to enforce conversation flow.
@@ -49,7 +49,7 @@ The following features are **planned but not in the current codebase**:
 - Web UI (Flask + HTML/CSS/JS) — the activity's Option 1
 - Speech-to-text (STT)
 - Text-to-speech (TTS)
-- Wake phrase "Hey, Shelly"
+- Wake phrase "Hey, Leighton"
 
 They should not be assumed to work. See the "Future Work" section at the
 bottom.
@@ -74,7 +74,7 @@ No paid APIs. No cloud calls.
 ## Installation and Setup (Windows)
 
 Run these commands in **PowerShell** from the project root
-(`shelly-virtual-waiter`).
+(`Leighton-virtual-waiter`).
 
 ### 1. Verify Python
 
@@ -221,7 +221,7 @@ You will see:
 
 | Control | Behavior |
 |---------|----------|
-| Type + Enter | Send a message to Shelly |
+| Type + Enter | Send a message to Leighton |
 | `/menu` or `F2` | Show the full menu grouped by category |
 | `/confirm` or `Alt+Enter` or `F3` | Review then confirm the order |
 | `/clear` or `F4` | Clear the current cart |
@@ -250,7 +250,7 @@ session in progress.
 ## Project Structure
 
 ```
-shelly-virtual-waiter/
+Leighton-virtual-waiter/
 ├── README.md                        # this file
 ├── requirements.txt                 # pip dependencies
 ├── test_tool_call.py                # quick Ollama tool-calling smoke test
@@ -300,7 +300,7 @@ shelly-virtual-waiter/
                └──────────────┬──────────────────────┘
                               ▼
                    ┌──────────────────────┐
-                   │  ShellyAgent         │
+                   │  LeightonAgent         │
                    │  (fsm_agent.py)      │
                    │                      │
                    │  Deterministic       │
@@ -339,7 +339,7 @@ shelly-virtual-waiter/
 ### Flow of a single turn (either interface)
 
 1. The interface reads a line of user text and calls
-   `ShellyAgent.handle_user_message(text)`.
+   `LeightonAgent.handle_user_message(text)`.
 2. Python shortcut checks run first (greeting, off-topic, review/confirm,
    note change, allergen, cancel, remove, change qty, multi-item add,
    single add). If any of them produces an answer, the LLM is skipped.
@@ -510,7 +510,7 @@ Log structure:
 ```
 {
   "lab": "Lesson 6 - ...",
-  "agent": "Shelly",
+  "agent": "Leighton",
   "model": "qwen2.5:3b (Ollama)",
   "started_at": "...",
   "ended_at": "...",
@@ -634,8 +634,8 @@ The TUI was verified through the pasted terminal transcripts for:
 | `model "qwen2.5:3b" not found` | Model not pulled | `ollama pull qwen2.5:3b` |
 | `Session 'T5-S001' not found` | Fresh DB after code ran | Re-run `python init_db.py` from `database/` |
 | `Tool 'x' is not registered` | Tool missing from `TOOL_REGISTRY` | Add the function to `TOOL_REGISTRY` in `db_tools.py` |
-| Shelly calls the wrong tool | Small-model confusion | Add or extend a Python pre-parser in `fsm_agent.py` |
-| Shelly says "$" instead of "₱" | LLM style drift | The persona instructs ₱; the CLI's deterministic replies always use ₱ |
+| Leighton calls the wrong tool | Small-model confusion | Add or extend a Python pre-parser in `fsm_agent.py` |
+| Leighton says "$" instead of "₱" | LLM style drift | The persona instructs ₱; the CLI's deterministic replies always use ₱ |
 | `sqlite3.OperationalError: no such table` | DB missing or wrong path | Run `init_db.py`; check `DB_PATH` in `db_tools.py` |
 | TUI renders garbled or misaligned | Terminal emulator not compatible with alt-screen | Use **Windows Terminal**; avoid legacy PowerShell host |
 | F3 or Ctrl+K does nothing in the TUI | VS Code intercepts the key | Use `/confirm` (text command) — guaranteed path |
@@ -709,7 +709,7 @@ The following features are **planned or discussed but not implemented**:
 
 - **Web UI (Flask + HTML/CSS/JS).** The activity's Option 1. The
   `frontend/` folder is reserved but empty. A Flask server would wrap
-  `ShellyAgent` behind HTTP endpoints (`/api/chat`, `/api/order`,
+  `LeightonAgent` behind HTTP endpoints (`/api/chat`, `/api/order`,
   `/api/menu`) with an HTML frontend polling `/api/order` every few
   seconds. Nothing in the current architecture blocks this — the agent is
   already usable in-process by any frontend.
@@ -718,7 +718,7 @@ The following features are **planned or discussed but not implemented**:
   alternative (Vosk, faster-whisper) is possible but not chosen yet.
 - **Text-to-speech (TTS).** The browser's SpeechSynthesis API is the
   simplest offline path on Windows.
-- **Wake phrase "Hey, Shelly".** Requires a dedicated engine
+- **Wake phrase "Hey, Leighton".** Requires a dedicated engine
   (openWakeWord, Porcupine). Not implemented. Trade-offs are not resolved
   yet.
 - **Clear-note command.** `update_item_instructions` currently rejects
@@ -729,7 +729,7 @@ The following features are **planned or discussed but not implemented**:
 
 The entire `backend/fsm_agent.py` and `database/db_tools.py` layer can be
 reused unchanged by a Web UI. The Flask server would only need to hold a
-single `ShellyAgent` in memory behind HTTP endpoints. Nothing in the FSM
+single `LeightonAgent` in memory behind HTTP endpoints. Nothing in the FSM
 assumes a terminal.
 
 ---

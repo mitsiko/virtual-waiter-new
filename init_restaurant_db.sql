@@ -1,6 +1,6 @@
 -- ============================================================
 -- Perpetual Bistro - SQLite Schema & Seed Data
--- Shelly Virtual Waiter - Lesson 6 / Milestone 2
+-- Leighton Virtual Waiter - Lesson 6 / Milestone 2
 -- ============================================================
 -- Run with:  python init_db.py
 -- Produces:  restaurant.db  (in this same folder)

@@ -48,25 +48,37 @@ h1 { font-size: 2rem; }
 h2 { font-size: 1.2rem; }
 
 /* Stacked vertically (brand above menu) */
+/* Combined brand and menu container */
 .top-panels {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 0;
     margin-bottom: 16px;
     width: 50vw;
     margin-left: 15vw;
     margin-right: 15vw;
-    transition: width 0.3s ease, margin-left 0.3s ease, margin-right 0.3s ease;
-}
-
-/* Semi-transparent panels with frosted-glass effect */
-.brand-panel, .menu-panel, .card {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--primary);
     border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: width 0.3s ease, margin-left 0.3s ease, margin-right 0.3s ease;
+}
+
+/* Semi-transparent panels with frosted-glass effect */
+/* Panel and card styling */
+.brand-panel, .menu-panel, .card {
     padding: 20px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--primary);
+    border-radius: 12px;
     box-shadow: var(--shadow);
 }
 
@@ -79,8 +91,9 @@ h2 { font-size: 1.2rem; }
 .brand-panel .hint { color: var(--muted); font-size: 0.95rem; line-height: 1.4; }
 
 .menu-panel {
-    max-height: 420px;
-    overflow-y: auto;
+    max-height: none;
+    overflow: visible;
+    border-top: 1px solid var(--border);
 }
 .menu-content .menu-group { margin-bottom: 16px; }
 .menu-content .menu-group h3 {
@@ -363,7 +376,7 @@ body.chat-open .fab-chat {
     background: var(--secondary);
     color: var(--primary);
 }
-.chat-msg.shelly {
+.chat-msg.Leighton {
     align-self: flex-start;
     background: var(--secondary-soft);
     color: var(--text);

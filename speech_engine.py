@@ -1,5 +1,5 @@
 """
-speech_engine.py - Offline speech wrappers for Shelly the Virtual Waiter.
+speech_engine.py - Offline speech wrappers for Leighton the Virtual Waiter.
 
 Two responsibilities:
   * Text-to-Speech (TTS) via pyttsx3 (Windows SAPI5).

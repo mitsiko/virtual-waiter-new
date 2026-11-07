@@ -1,8 +1,8 @@
-# Pair Collaboration Log — Shelly Virtual Waiter
+# Pair Collaboration Log — Leighton Virtual Waiter
 
 ## Project Overview
 
-The Shelly Virtual Waiter is a stateful restaurant ordering agent built for the AI course lab on Conversational State Machines and Workflows. It presents a five-state Finite State Machine that manages a customer conversation, invokes Python tools that read and write a local SQLite database, and records every turn to a JSON conversation log. Two interfaces are delivered: `virtual_waiter_prototype.py`, the required command-line prototype, and `tui_app.py`, a Textual-based terminal interface matching the activity's Option 2 layout. The agent runs locally against Ollama using the `qwen2.5:3b` model, with no cloud dependencies.
+The Leighton Virtual Waiter is a stateful restaurant ordering agent built for the AI course lab on Conversational State Machines and Workflows. It presents a five-state Finite State Machine that manages a customer conversation, invokes Python tools that read and write a local SQLite database, and records every turn to a JSON conversation log. Two interfaces are delivered: `virtual_waiter_prototype.py`, the required command-line prototype, and `tui_app.py`, a Textual-based terminal interface matching the activity's Option 2 layout. The agent runs locally against Ollama using the `qwen2.5:3b` model, with no cloud dependencies.
 
 ## Collaboration Model
 

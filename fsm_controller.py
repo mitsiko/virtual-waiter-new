@@ -1,5 +1,5 @@
 """
-fsm_agent.py - Finite State Machine controller for Shelly the Virtual Waiter.
+fsm_agent.py - Finite State Machine controller for Leighton the Virtual Waiter.
 """
 from __future__ import annotations
 import os
@@ -55,7 +55,7 @@ CANCEL_ORDER_TRIGGERS = [
 RESTAURANT_WHITELIST = [
     "menu", "food", "dish", "meal", "eat", "drink", "order", "table",
     "waiter", "waitress", "server", "manager", "staff", "restaurant",
-    "bistro", "shelly", "kitchen", "chef", "serve", "prepared", "cook",
+    "bistro", "Leighton", "kitchen", "chef", "serve", "prepared", "cook",
     "appetizer", "appetizers", "starter", "starters",
     "main", "mains", "entree", "side", "sides",
     "rice", "dessert", "desserts", "drinks",
@@ -103,7 +103,7 @@ NUMBER_WORDS = {
 # ------------------------------------------------------------
 # System prompt
 # ------------------------------------------------------------
-BASE_PERSONA = """You are Shelly, the friendly virtual waiter at Perpetual Bistro.
+BASE_PERSONA = """You are Leighton, the friendly virtual waiter at Perpetual Bistro.
 You help guests browse the menu, customize dishes, and finalize their order.
 
 STRICT RULES:
@@ -199,9 +199,9 @@ def _state_instructions(state: str, session_id: str | None, table_no: int | None
 
 
 # ------------------------------------------------------------
-# ShellyAgent
+# LeightonAgent
 # ------------------------------------------------------------
-class ShellyAgent:
+class LeightonAgent:
     def __init__(self, session_id: str | None = None, table_no: int | None = None):
         self.state: str = "STATE_GREETING"
         self.session_id: str | None = session_id
@@ -1510,7 +1510,7 @@ class ShellyAgent:
                                         "arguments": {"table_no": table_no},
                                         "result": res}],
                     }
-            reply = ("Welcome to Perpetual Bistro! I'm Shelly, your virtual waiter. "
+            reply = ("Welcome to Perpetual Bistro! I'm Leighton, your virtual waiter. "
                      "What's your table number?")
             self.messages.append({"role": "user", "content": user_text})
             self.messages.append({"role": "assistant", "content": reply})

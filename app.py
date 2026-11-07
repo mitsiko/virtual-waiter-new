@@ -1,5 +1,5 @@
 """
-app.py - Flask entry point for the Shelly Virtual Waiter web application.
+app.py - Flask entry point for the Leighton Virtual Waiter web application.
 
 Serves the dashboard UI at / and exposes JSON/audio API endpoints used by
 ui_dashboard/static/app.js.
@@ -21,7 +21,7 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 import db_tools as db
-from fsm_controller import ShellyAgent
+from fsm_controller import LeightonAgent
 from speech_engine import SpeechEngine, get_engine
 
 TEMPLATE_DIR = os.path.join(HERE, "ui_dashboard", "templates")
@@ -31,7 +31,7 @@ app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 
 # Single in-process agent, matching how the TUI worked.
 # Restart the server or POST /api/reset to start a fresh session.
-AGENT = ShellyAgent()
+AGENT = LeightonAgent()
 SPEECH: SpeechEngine = get_engine()
 
 # Prime the STT prompt with menu vocabulary.
@@ -328,7 +328,7 @@ def api_confirm():
 @app.post("/api/reset")
 def api_reset():
     global AGENT
-    AGENT = ShellyAgent()
+    AGENT = LeightonAgent()
     return jsonify({"status": "success", "state": AGENT.state})
 
 

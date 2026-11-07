@@ -1,5 +1,5 @@
 """
-db_tools.py - Python tool functions for Shelly the Virtual Waiter.
+db_tools.py - Python tool functions for Leighton the Virtual Waiter.
 
 Every tool:
   * Validates its arguments (never trusts LLM output).

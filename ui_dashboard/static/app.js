@@ -1,4 +1,4 @@
-// Shelly Virtual Waiter — frontend (Pass 2: text + voice + auto-TTS)
+// Leighton Virtual Waiter — frontend (Pass 2: text + voice + auto-TTS)
 
 const state = {
     menu: null,
@@ -201,7 +201,7 @@ async function ensureGreetingSpoken() {
     if (greetingSpoken) return;
     greetingSpoken = true;
     if (state.current.state !== 'STATE_GREETING') return;
-    const greeting = "Hi! I'm Shelly. Tell me your table number (for example, \"Table 5\") to get started.";
+    const greeting = "Hi! I'm Leighton. Tell me your table number (for example, \"Table 5\") to get started.";
     await speak(greeting);
 }
 
@@ -275,7 +275,7 @@ async function submitUserText(text) {
     setStatus('Thinking…');
     const res = await api('/api/chat', 'POST', { message: text });
     if (res.status === 'success') {
-        appendChat('shelly', res.reply);
+        appendChat('Leighton', res.reply);
         applyState({
             state: res.state,
             session_id: res.session_id,
@@ -285,7 +285,7 @@ async function submitUserText(text) {
         await speak(res.reply);
     } else {
         setStatus('Idle');
-        appendChat('shelly', res.message || 'Something went wrong.');
+        appendChat('Leighton', res.message || 'Something went wrong.');
     }
 }
 
@@ -307,7 +307,7 @@ async function cartUpdate(itemName, action, instructions) {
         applyState({ order: res.order, state: res.state });
     } else {
         const errMsg = res.message || 'Could not update cart.';
-        appendChat('shelly', errMsg);
+        appendChat('Leighton', errMsg);
         openChat();
         await speak(errMsg);
     }
@@ -322,17 +322,17 @@ async function doConfirm() {
     const rev = await api('/api/review', 'POST');
     if (rev.status === 'success') {
         applyState({ order: rev.order, state: rev.state });
-        if (rev.reply) appendChat('shelly', rev.reply);
+        if (rev.reply) appendChat('Leighton', rev.reply);
     }
     const res = await api('/api/confirm', 'POST', { yes: true });
     if (res.status === 'success') {
-        if (res.reply) appendChat('shelly', res.reply);
+        if (res.reply) appendChat('Leighton', res.reply);
         applyState({ order: res.order, state: res.state });
         closeConfirmModal();
         await speak(res.reply);
     } else {
         setStatus('Idle');
-        appendChat('shelly', res.message || 'Could not confirm order.');
+        appendChat('Leighton', res.message || 'Could not confirm order.');
         closeConfirmModal();
     }
 }
@@ -472,7 +472,7 @@ async function startRecording() {
     const r = await voice.start();
     if (!r.ok) {
         setStatus('Idle');
-        appendChat('shelly', r.message || 'Could not start recording.');
+        appendChat('Leighton', r.message || 'Could not start recording.');
         return;
     }
     const mic = $('mic-button');
@@ -497,7 +497,7 @@ async function stopRecordingAndTranscribe() {
         const stt = await api('/api/stt', 'POST', { audio_b64: b64 });
         if (stt.status !== 'success' || !stt.text) {
             const errMsg = stt.message || "I didn't catch that. Please try again.";
-            appendChat('shelly', errMsg);
+            appendChat('Leighton', errMsg);
             await speak(errMsg);
             return;
         }
@@ -505,7 +505,7 @@ async function stopRecordingAndTranscribe() {
     } catch (e) {
         console.error(e);
         const errMsg = 'Could not process the recording.';
-        appendChat('shelly', errMsg);
+        appendChat('Leighton', errMsg);
         await speak(errMsg);
     }
 }
@@ -530,8 +530,8 @@ async function init() {
     });
 
     if (state.current.state === 'STATE_GREETING') {
-        appendChat('shelly',
-            "Hi! I'm Shelly. Tell me your table number (for example, \"Table 5\") to get started.");
+        appendChat('Leighton',
+            "Hi! I'm Leighton. Tell me your table number (for example, \"Table 5\") to get started.");
     }
 
     $('chat-toggle').addEventListener('click', toggleChat);

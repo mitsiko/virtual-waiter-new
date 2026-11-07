@@ -1,42 +1,42 @@
 {
   "lab": "Lesson 6 - Conversational State Machines and Workflows",
-  "agent": "Shelly",
+  "agent": "Leighton",
   "model": "qwen2.5:3b (Ollama)",
-  "started_at": "2026-11-07T00:58:00",
-  "ended_at": "2026-11-07T00:59:04",
+  "started_at": "2026-11-07T06:36:49",
+  "ended_at": "2026-11-07T06:41:39",
   "final_state": "STATE_COMPLETED",
-  "final_session_id": "T10-S001",
-  "final_table_no": 10,
+  "final_session_id": "T3-S001",
+  "final_table_no": 3,
   "final_order": {
-    "session_id": "T10-S001",
-    "table_no": 10,
+    "session_id": "T3-S001",
+    "table_no": 3,
     "status": "CONFIRMED",
     "lines": [
       {
-        "line_id": 1,
-        "item_id": 4,
-        "name": "Chicken Adobo",
-        "category": "Main Dishes",
-        "price": 220.0,
-        "quantity": 2,
-        "instructions": "no onions",
-        "line_total": 440.0
-      },
-      {
-        "line_id": 2,
-        "item_id": 11,
-        "name": "Iced Tea",
-        "category": "Drinks",
-        "price": 50.0,
+        "line_id": 7,
+        "item_id": 14,
+        "name": "Halo-Halo",
+        "category": "Desserts",
+        "price": 150.0,
         "quantity": 1,
         "instructions": "",
-        "line_total": 50.0
+        "line_total": 150.0
+      },
+      {
+        "line_id": 8,
+        "item_id": 12,
+        "name": "Fresh Buko Juice",
+        "category": "Drinks",
+        "price": 80.0,
+        "quantity": 1,
+        "instructions": "",
+        "line_total": 80.0
       }
     ],
-    "subtotal": 490.0,
-    "service_fee": 49.0,
-    "grand_total": 539.0,
-    "item_count": 3
+    "subtotal": 230.0,
+    "service_fee": 23.0,
+    "grand_total": 253.0,
+    "item_count": 2
   },
   "turns": [
     {
@@ -44,23 +44,23 @@
       "user": "(session start)",
       "state_before": "STATE_GREETING",
       "state_after": "STATE_GREETING",
-      "reply": "Welcome to Perpetual Bistro! I'm Shelly, your virtual waiter. What's your table number?",
+      "reply": "Welcome to Perpetual Bistro! I'm Leighton, your virtual waiter. What's your table number?",
       "tool_calls": []
     },
     {
       "turn": 1,
-      "user": "Table 10",
+      "user": "Table Three",
       "state_before": "STATE_GREETING",
       "state_after": "STATE_TAKING_ORDER",
-      "reply": "Thanks! Table 10 is open. What would you like to order? We have Appetizers, Main Dishes, Rice, Drinks, and Desserts.",
+      "reply": "Thanks! Table 3 is open. What would you like to order? We have Appetizers, Main Dishes, Rice, Drinks, and Desserts.",
       "tool_calls": [
         {
           "name": "create_session",
           "arguments": {
-            "table_no": 10
+            "table_no": 3
           },
           "result_status": "success",
-          "result_message": "Session T10-S001 opened for table 10."
+          "result_message": "Session T3-S001 opened for table 3."
         }
       ]
     },
@@ -83,35 +83,172 @@
     },
     {
       "turn": 3,
-      "user": "Add 2 Chicken Adobo, no onions",
+      "user": "What drinks do you have?",
       "state_before": "STATE_TAKING_ORDER",
       "state_after": "STATE_TAKING_ORDER",
-      "reply": "I've added 2 x Chicken Adobo (no onions) to your order. Anything else?",
+      "reply": "Our drinks:\n- Calamansi Juice: ₱70.00\n- Fresh Buko Juice: ₱80.00\n- Iced Tea: ₱50.00\n\nAnything catch your eye?",
+      "tool_calls": [
+        {
+          "name": "get_menu_by_category",
+          "arguments": {
+            "category": "Drinks"
+          },
+          "result_status": "success",
+          "result_message": "Found 3 item(s) in Drinks."
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "user": "What desserts do you have?",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "Our desserts:\n- Halo-Halo: ₱150.00\n- Leche Flan: ₱120.00\n- Mango Graham: ₱130.00\n\nAnything catch your eye?",
+      "tool_calls": [
+        {
+          "name": "get_menu_by_category",
+          "arguments": {
+            "category": "Desserts"
+          },
+          "result_status": "success",
+          "result_message": "Found 3 item(s) in Desserts."
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "user": "What's in the Calamari Fritters?",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "*Calamari Fritters*: Golden fried squid rings with calamansi (Philippine lime) aioli\nIngredients: Squid, flour batter, calamansi (Philippine lime), garlic aioli, cooking oil\nPrice: ₱180.00\nRecorded allergens: gluten,seafood",
+      "tool_calls": [
+        {
+          "name": "get_item_by_name",
+          "arguments": {
+            "item_name": "Calamari Fritters"
+          },
+          "result_status": "success",
+          "result_message": "Found item 'Calamari Fritters'."
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "user": "Tell me about Halo-Halo",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "*Halo-Halo*: Shaved ice dessert with ube (purple yam), leche flan (caramel custard), and fruits\nIngredients: Shaved ice, evaporated milk, ube (purple yam), leche flan (caramel custard), sweet beans, jackfruit\nPrice: ₱150.00\nRecorded allergens: dairy,eggs",
+      "tool_calls": [
+        {
+          "name": "get_item_by_name",
+          "arguments": {
+            "item_name": "Halo-Halo"
+          },
+          "result_status": "success",
+          "result_message": "Found item 'Halo-Halo'."
+        }
+      ]
+    },
+    {
+      "turn": 7,
+      "user": "Do you have anything with peanuts?",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "Items containing peanuts: Vegetable Spring Rolls, Beef Kare-Kare, Vegetable Pad Thai.",
+      "tool_calls": [
+        {
+          "name": "search_menu_by_allergen",
+          "arguments": {
+            "allergen": "peanuts",
+            "contain": true
+          },
+          "result_status": "success",
+          "result_message": "3 item(s) contain peanuts."
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "user": "What can I eat that's gluten-free?",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "Items without gluten: Halo-Halo, Leche Flan, Calamansi Juice, Fresh Buko Juice, Iced Tea, Beef Kare-Kare, Chicken Adobo, Grilled Bangus, Pork Sinigang, Vegetable Pad Thai, Garlic Fried Rice, Steamed White Rice.",
+      "tool_calls": [
+        {
+          "name": "search_menu_by_allergen",
+          "arguments": {
+            "allergen": "gluten",
+            "contain": false
+          },
+          "result_status": "success",
+          "result_message": "12 item(s) do not contain gluten."
+        }
+      ]
+    },
+    {
+      "turn": 9,
+      "user": "I'm allergic to dairy. Can I have the Leche Flan?",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "No, Leche Flan contains dairy (recorded allergens: dairy, eggs). Please avoid it if you have an allergy.",
+      "tool_calls": [
+        {
+          "name": "get_item_by_name",
+          "arguments": {
+            "item_name": "Leche Flan"
+          },
+          "result_status": "success",
+          "result_message": "Found item 'Leche Flan'."
+        },
+        {
+          "name": "check_item_allergen",
+          "arguments": {
+            "item_id": 15,
+            "allergen": "dairy"
+          },
+          "result_status": "success",
+          "result_message": "'Leche Flan' contains dairy."
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "user": "Can you make the Pork Sinigang vegetarian?",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "I'm sorry, our kitchen can't modify a dish's recipe. I can add a special note to your order, but the dish will be prepared as described. Would you like me to add a note instead?",
+      "tool_calls": []
+    },
+    {
+      "turn": 11,
+      "user": "What's the capital of France?",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "I'm here to help with your Perpetual Bistro order. What would you like to eat or drink?",
+      "tool_calls": []
+    },
+    {
+      "turn": 12,
+      "user": "Add 2 Chicken Adobo, no onions and 1 Iced Tea",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "I've added 2 x Chicken Adobo (no onions), 1 x Iced Tea to your order. Anything else?",
       "tool_calls": [
         {
           "name": "add_item_to_order",
           "arguments": {
-            "session_id": "T10-S001",
+            "session_id": "T3-S001",
             "item_name": "Chicken Adobo",
             "qty": 2,
             "instructions": "no onions"
           },
           "result_status": "success",
           "result_message": "Added 2 x Chicken Adobo (no onions) to your order."
-        }
-      ]
-    },
-    {
-      "turn": 4,
-      "user": "Add 1 Iced Tea",
-      "state_before": "STATE_TAKING_ORDER",
-      "state_after": "STATE_TAKING_ORDER",
-      "reply": "I've added 1 x Iced Tea to your order. Anything else?",
-      "tool_calls": [
+        },
         {
           "name": "add_item_to_order",
           "arguments": {
-            "session_id": "T10-S001",
+            "session_id": "T3-S001",
             "item_name": "Iced Tea",
             "qty": 1,
             "instructions": ""
@@ -122,33 +259,288 @@
       ]
     },
     {
-      "turn": 5,
-      "user": "Show my order",
+      "turn": 13,
+      "user": "Add another one",
       "state_before": "STATE_TAKING_ORDER",
-      "state_after": "STATE_REVIEW",
-      "reply": "Here is your current order at Table 10:\n- 2 x Chicken Adobo (no onions): ₱440.00\n- 1 x Iced Tea: ₱50.00\n\nSubtotal: ₱490.00\nService Fee (10%): ₱49.00\nTotal: ₱539.00\n\nReply 'confirm' (or click Confirm my Order) to finalize, or tell me what you'd like to change.",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "Sure — which item would you like me to add? For example: '1 Chicken Adobo'.",
+      "tool_calls": []
+    },
+    {
+      "turn": 14,
+      "user": "1 Calamansi Juice please",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "I've added 1 x Calamansi Juice to your order. Anything else?",
       "tool_calls": [
         {
-          "name": "view_current_order",
+          "name": "add_item_to_order",
           "arguments": {
-            "session_id": "T10-S001"
+            "session_id": "T3-S001",
+            "item_name": "Calamansi Juice",
+            "qty": 1,
+            "instructions": ""
           },
           "result_status": "success",
-          "result_message": "You have 3 item(s)."
+          "result_message": "Added 1 x Calamansi Juice to your order."
         }
       ]
     },
     {
-      "turn": 6,
+      "turn": 15,
+      "user": "Add 1 Beef Kare-Kare",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "I've added 1 x Beef Kare-Kare to your order. Anything else?",
+      "tool_calls": [
+        {
+          "name": "add_item_to_order",
+          "arguments": {
+            "session_id": "T3-S001",
+            "item_name": "Beef Kare-Kare",
+            "qty": 1,
+            "instructions": ""
+          },
+          "result_status": "success",
+          "result_message": "Added 1 x Beef Kare-Kare to your order."
+        }
+      ]
+    },
+    {
+      "turn": 16,
+      "user": "Add 1 Vegetable Spring Rolls",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "Sorry, 'Vegetable Spring Rolls' is out of stock or not enough left.",
+      "tool_calls": [
+        {
+          "name": "add_item_to_order",
+          "arguments": {
+            "session_id": "T3-S001",
+            "item_name": "Vegetable Spring Rolls",
+            "qty": 1,
+            "instructions": ""
+          },
+          "result_status": "error",
+          "result_message": "Sorry, 'Vegetable Spring Rolls' is out of stock or not enough left."
+        }
+      ]
+    },
+    {
+      "turn": 17,
+      "user": "Change the Iced Tea to 3",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "Changed Iced Tea to 3. Anything else?",
+      "tool_calls": [
+        {
+          "name": "change_item_quantity",
+          "arguments": {
+            "session_id": "T3-S001",
+            "item_name": "Iced Tea",
+            "new_qty": 3
+          },
+          "result_status": "success",
+          "result_message": "Updated 'Iced Tea' to quantity 3. Your new total is ₱1078.00."
+        }
+      ]
+    },
+    {
+      "turn": 18,
+      "user": "Change the note on the Chicken Adobo to extra garlic",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "Updated the note on Chicken Adobo to: extra garlic.",
+      "tool_calls": [
+        {
+          "name": "update_item_instructions",
+          "arguments": {
+            "session_id": "T3-S001",
+            "item_name": "Chicken Adobo",
+            "new_instructions": "extra garlic"
+          },
+          "result_status": "success",
+          "result_message": "Updated the note on 'Chicken Adobo' to: extra garlic"
+        }
+      ]
+    },
+    {
+      "turn": 19,
+      "user": "Remove 1 Chicken Adobo",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "Removed 1 x 'Chicken Adobo' (extra garlic). 1 remaining.",
+      "tool_calls": [
+        {
+          "name": "remove_item_from_order",
+          "arguments": {
+            "session_id": "T3-S001",
+            "item_name": "Chicken Adobo",
+            "qty": 1
+          },
+          "result_status": "success",
+          "result_message": "Removed 1 x 'Chicken Adobo' (extra garlic). 1 remaining."
+        }
+      ]
+    },
+    {
+      "turn": 20,
+      "user": "Add 1 Mango Graham",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "I've added 1 x Mango Graham to your order. Anything else?",
+      "tool_calls": [
+        {
+          "name": "add_item_to_order",
+          "arguments": {
+            "session_id": "T3-S001",
+            "item_name": "Mango Graham",
+            "qty": 1,
+            "instructions": ""
+          },
+          "result_status": "success",
+          "result_message": "Added 1 x Mango Graham to your order."
+        }
+      ]
+    },
+    {
+      "turn": 21,
+      "user": "Show my order",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_REVIEW",
+      "reply": "Here is your current order at Table 3:\n- 1 x Chicken Adobo (extra garlic): ₱220.00\n- 3 x Iced Tea: ₱150.00\n- 1 x Calamansi Juice: ₱70.00\n- 1 x Beef Kare-Kare: ₱320.00\n- 1 x Mango Graham: ₱130.00\n\nSubtotal: ₱890.00\nService Fee (10%): ₱89.00\nTotal: ₱979.00\n\nReply 'confirm' (or click Confirm my Order) to finalize, or tell me what you'd like to change.",
+      "tool_calls": [
+        {
+          "name": "view_current_order",
+          "arguments": {
+            "session_id": "T3-S001"
+          },
+          "result_status": "success",
+          "result_message": "You have 7 item(s)."
+        }
+      ]
+    },
+    {
+      "turn": 22,
+      "user": "Add 1 Leche Flan",
+      "state_before": "STATE_REVIEW",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "I've added 1 x Leche Flan to your order. Anything else?",
+      "tool_calls": [
+        {
+          "name": "add_item_to_order",
+          "arguments": {
+            "session_id": "T3-S001",
+            "item_name": "Leche Flan",
+            "qty": 1,
+            "instructions": ""
+          },
+          "result_status": "success",
+          "result_message": "Added 1 x Leche Flan to your order."
+        }
+      ]
+    },
+    {
+      "turn": 23,
+      "user": "Remove everything from my order please",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "Cleared your order. What would you like to add?",
+      "tool_calls": [
+        {
+          "name": "clear_session_cart",
+          "arguments": {
+            "session_id": "T3-S001"
+          },
+          "result_status": "success",
+          "result_message": "Cart cleared."
+        }
+      ]
+    },
+    {
+      "turn": 24,
+      "user": "Add 1 Halo-Halo",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "I've added 1 x Halo-Halo to your order. Anything else?",
+      "tool_calls": [
+        {
+          "name": "add_item_to_order",
+          "arguments": {
+            "session_id": "T3-S001",
+            "item_name": "Halo-Halo",
+            "qty": 1,
+            "instructions": ""
+          },
+          "result_status": "success",
+          "result_message": "Added 1 x Halo-Halo to your order."
+        }
+      ]
+    },
+    {
+      "turn": 25,
+      "user": "Add 1 Fresh Buko Juice",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_TAKING_ORDER",
+      "reply": "I've added 1 x Fresh Buko Juice to your order. Anything else?",
+      "tool_calls": [
+        {
+          "name": "add_item_to_order",
+          "arguments": {
+            "session_id": "T3-S001",
+            "item_name": "Fresh Buko Juice",
+            "qty": 1,
+            "instructions": ""
+          },
+          "result_status": "success",
+          "result_message": "Added 1 x Fresh Buko Juice to your order."
+        }
+      ]
+    },
+    {
+      "turn": 26,
+      "user": "Show my order",
+      "state_before": "STATE_TAKING_ORDER",
+      "state_after": "STATE_REVIEW",
+      "reply": "Here is your current order at Table 3:\n- 1 x Halo-Halo: ₱150.00\n- 1 x Fresh Buko Juice: ₱80.00\n\nSubtotal: ₱230.00\nService Fee (10%): ₱23.00\nTotal: ₱253.00\n\nReply 'confirm' (or click Confirm my Order) to finalize, or tell me what you'd like to change.",
+      "tool_calls": [
+        {
+          "name": "view_current_order",
+          "arguments": {
+            "session_id": "T3-S001"
+          },
+          "result_status": "success",
+          "result_message": "You have 2 item(s)."
+        }
+      ]
+    },
+    {
+      "turn": 27,
+      "user": "Cancel my order",
+      "state_before": "STATE_REVIEW",
+      "state_after": "STATE_REVIEW",
+      "reply": "Just to confirm — do you want to cancel your entire order? This cannot be undone. Say 'yes' to cancel or 'no' to keep it.",
+      "tool_calls": []
+    },
+    {
+      "turn": 28,
+      "user": "No",
+      "state_before": "STATE_REVIEW",
+      "state_after": "STATE_REVIEW",
+      "reply": "Okay, I won't cancel your order. What would you like to do next?",
+      "tool_calls": []
+    },
+    {
+      "turn": 29,
       "user": "Finalize my order",
       "state_before": "STATE_REVIEW",
       "state_after": "STATE_CONFIRMED",
-      "reply": "Your order has been confirmed! Thank you for dining at Perpetual Bistro.\n  - 2 x Chicken Adobo (no onions): ₱440.00\n  - 1 x Iced Tea: ₱50.00\nTotal: ₱539.00. Enjoy your meal!",
+      "reply": "Your order has been confirmed! Total: ₱253.00 for 2 item(s). Thank you for dining at Perpetual Bistro — enjoy your meal!",
       "tool_calls": [
         {
           "name": "confirm_order",
           "arguments": {
-            "session_id": "T10-S001"
+            "session_id": "T3-S001"
           },
           "result_status": "success",
           "result_message": "Order confirmed. Thank you!"
@@ -156,11 +548,19 @@
       ]
     },
     {
-      "turn": 7,
+      "turn": 30,
       "user": "Add 1 more Iced Tea",
       "state_before": "STATE_CONFIRMED",
       "state_after": "STATE_COMPLETED",
       "reply": "Your order has already been confirmed and sent to the kitchen, so it can no longer be modified. If you'd like to order something else, say 'start a new order' or click the new-session button.",
+      "tool_calls": []
+    },
+    {
+      "turn": 31,
+      "user": "What's the weather?",
+      "state_before": "STATE_COMPLETED",
+      "state_after": "STATE_COMPLETED",
+      "reply": "I'm here to help with your Perpetual Bistro order. What would you like to eat or drink?",
       "tool_calls": []
     }
   ]

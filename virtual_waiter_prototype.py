@@ -1,5 +1,5 @@
 """
-virtual_waiter_prototype.py - CLI entry point for Shelly the Virtual Waiter.
+virtual_waiter_prototype.py - CLI entry point for Leighton the Virtual Waiter.
 
 This is the executable demonstration of the Lesson 6 lab:
   * Runs the FSM agent interactively in the terminal.
@@ -31,7 +31,7 @@ os.makedirs(LOGS_DIR, exist_ok=True)
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-from fsm_controller import ShellyAgent  # noqa: E402
+from fsm_controller import LeightonAgent  # noqa: E402
 import db_tools as db  # noqa: E402
 
 
@@ -78,7 +78,7 @@ def main() -> int:
 
     print(BANNER)
 
-    agent = ShellyAgent()
+    agent = LeightonAgent()
     turns: list[dict] = []
     started_at = datetime.datetime.now().isoformat(timespec="seconds")
 
@@ -88,7 +88,7 @@ def main() -> int:
     # first user message of "hi" which our GREETING shortcut handles
     # without calling any tool.
     boot = agent.handle_user_message("hi")
-    print(f"[{boot['state']}] Shelly: {boot['reply']}\n")
+    print(f"[{boot['state']}] Leighton: {boot['reply']}\n")
     turns.append({
         "turn": 0,
         "user": "(session start)",
@@ -123,7 +123,7 @@ def main() -> int:
 
             if user_input == "/reset":
                 _reset_database()
-                agent = ShellyAgent()
+                agent = LeightonAgent()
                 turns = []
                 started_at = datetime.datetime.now().isoformat(timespec="seconds")
                 print("[reset] Database wiped, new session started.")
@@ -131,7 +131,7 @@ def main() -> int:
 
             state_before = agent.state
             result = agent.handle_user_message(user_input)
-            print(f"\n[{result['state']}] Shelly: {result['reply']}")
+            print(f"\n[{result['state']}] Leighton: {result['reply']}")
             if result["tool_calls"]:
                 print("  (tools called:")
                 for tc in result["tool_calls"]:
@@ -162,7 +162,7 @@ def main() -> int:
 
         log = {
             "lab": "Lesson 6 - Conversational State Machines and Workflows",
-            "agent": "Shelly",
+            "agent": "Leighton",
             "model": "qwen2.5:3b (Ollama)",
             "started_at": started_at,
             "ended_at": ended_at,
